@@ -26,6 +26,11 @@ set(CTRL_UTILS_CMAKE_DIR ${PROJECT_SOURCE_DIR}/cmake)
 set(CTRL_UTILS_EXT_DIR ${PROJECT_SOURCE_DIR}/external)
 set(CTRL_UTILS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
+# option(USE_VISION "USE_VISION" OFF)
+option(LINK_OPENCV "LINK_OPENCV" OFF)
+
+
+
 # Create control_utils library
 add_library(${CTRL_UTILS_LIB} INTERFACE)
 
@@ -92,6 +97,27 @@ target_link_libraries(${CTRL_UTILS_LIB}
         nlohmann_json::nlohmann_json
         yaml-cpp::yaml-cpp
 )
+
+
+
+if(LINK_OPENCV)
+find_package(OpenCV REQUIRED)
+find_package(OpenMP)
+find_package(OpenCL REQUIRED)
+
+include_directories(include
+  ${OpenCV_INCLUDE_DIRS}
+  ${OpenCL_INCLUDE_DIRS}
+)
+
+
+target_link_libraries(${CTRL_UTILS_LIB}
+  ${OpenCV_LIBRARIES}
+  ${OpenCL_LIBRARIES}
+)
+
+endif(LINK_OPENCV)
+
 
 # Set include directories
 target_include_directories(${CTRL_UTILS_LIB}
