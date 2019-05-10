@@ -4,11 +4,10 @@
 
 #include <iostream>
 #include <sstream>
-#include <cstring>
 #include <tuple>
 #include <opencv2/opencv.hpp>
 #include <redis_client.h>
-
+#include <string>
 #include <cpp_redis/cpp_redis>
 
 #include "ctrl_utils/string.h"
