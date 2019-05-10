@@ -17,6 +17,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "eigen_string.h"
+#include "opencv.h"
 
 namespace ctrl_utils {
 
