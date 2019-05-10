@@ -226,7 +226,7 @@ std::future<cpp_redis::reply> RedisClient::mset(const Args&... args) {
   constexpr size_t num_pairs = sizeof...(Args);
   std::vector<std::pair<std::string, std::string>> key_valstr(num_pairs);
   KeyvalsToString(std::make_tuple(args...), key_valstr, std::index_sequence_for<Args...>{});
-  return cpp_redis::client::mset(key_valstr);
+  return ,(key_valstr);
 }
 
 template<class... Args>
