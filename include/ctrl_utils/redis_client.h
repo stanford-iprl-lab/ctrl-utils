@@ -245,11 +245,12 @@ RedisClient& RedisClient::mset(const std::vector<std::pair<std::string, T>>& key
                                const reply_callback_t& reply_callback) {
   std::vector<std::string> command;
   command.reserve(2 * key_vals.size() + 1);
-  command[0] = "MSET";
+  command.push_back("MSET");
   for (const std::pair<std::string, T>& key_val : key_vals) {
     command.push_back(key_val.first);
     command.push_back(ToString(key_val.second));
   }
+
   send(command, reply_callback);
   return *this;
 }
@@ -353,9 +354,10 @@ std::tuple<Ts...> RedisClient::sync_mget(const Args&... args) {
 template<typename T>
 std::future<std::vector<T>> RedisClient::mget(const std::vector<std::string>& keys) {
   auto promise = std::make_shared<std::promise<std::vector<T>>>();
-  std::vector<std::string> command(keys.size());
+  std::vector<std::string> command(keys.size()+1);
   command[0] = "MGET";
   std::copy(keys.begin(), keys.end(), command.begin() + 1);
+
   send(command, [this, command, promise](cpp_redis::reply& reply) {
     if (!reply.is_array()) {
       std::stringstream ss_error("RedisClient::mget(): Failed to get values from keys:");

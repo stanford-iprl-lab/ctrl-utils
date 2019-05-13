@@ -26,13 +26,14 @@ std::stringstream& operator>>(std::stringstream& ss, Mat& image) {
   // Read image dimensions
   int rows, cols, type;
   ss >> rows >> cols >> type;
+  assert(ss.get() == ' ');
 
   // Resize output image if necessary
   image.create(rows, cols, type);
 
   // Read raw image data
   const size_t num_bytes = image.total() * image.elemSize();
-  ss.read(image.data, num_bytes);
+  ss.read(reinterpret_cast<char*>(image.data), num_bytes);
 
   return ss;
 }
@@ -48,7 +49,8 @@ std::stringstream& operator<<(std::stringstream& ss, const Mat& image) {
   ss << image.rows << " " << image.cols << " " << image.type() << " ";
 
   // Write raw image data
-  ss.write(image.data, num_bytes);
+  const size_t num_bytes = image.total() * image.elemSize();
+  ss.write(reinterpret_cast<char*>(image.data), num_bytes);
 
   return ss;
 }
