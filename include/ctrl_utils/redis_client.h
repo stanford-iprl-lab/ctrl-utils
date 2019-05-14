@@ -486,41 +486,6 @@ void RedisClient::RepliesToTuple(const std::vector<cpp_redis::reply>& replies, T
 //   return future.get();
 // }
 
-template<typename T>
-RedisClient& RedisClient::mset(const std::vector<std::pair<std::string, T>>& key_vals,
-                               const reply_callback_t& reply_callback) {
-  std::vector<std::string> command;
-  command.reserve(2 * key_vals.size() + 1);
-  command.push_back("MSET");
-  for (const std::pair<std::string, T>& key_val : key_vals) {
-    command.push_back(key_val.first);
-    command.push_back(ToString(key_val.second));
-  }
-
-  send(command, reply_callback);
-  return *this;
-}
-
-template<typename T>
-std::future<cpp_redis::reply> RedisClient::mset(const std::vector<std::pair<std::string, T>>& key_vals) {
-  auto promise = std::make_shared<std::promise<cpp_redis::reply>>();
-  mset(key_vals, [promise](cpp_redis::reply& reply) {
-    if (reply) {
-      promise->set_value(reply);
-    } else {
-      promise->set_exception(std::make_exception_ptr(std::runtime_error(reply.error())));
-    }
-  });
-  return promise->get_future();
-}
-
-template<typename T>
-cpp_redis::reply RedisClient::sync_mset(const std::vector<std::pair<std::string, T>>& key_vals) {
-  std::future<cpp_redis::reply> future = mset(key_vals);
-  commit();
-  return future.get();
-}
-
 template<typename Func, typename Tuple, size_t... Is>
 void Apply(const Func& func, Tuple&& values, std::index_sequence<Is...>) {
   func(std::move(std::get<Is>(values))...);
@@ -676,11 +641,12 @@ RedisClient& RedisClient::mset(const std::vector<std::pair<std::string, T>>& key
                                const reply_callback_t& reply_callback) {
   std::vector<std::string> command;
   command.reserve(2 * key_vals.size() + 1);
-  command[0] = "MSET";
+  command.push_back("MSET");
   for (const std::pair<std::string, T>& key_val : key_vals) {
     command.push_back(key_val.first);
     command.push_back(ToString(key_val.second));
   }
+
   send(command, reply_callback);
   return *this;
 }
