@@ -8,7 +8,7 @@
 ############################################################
 
 if(NOT TARGET nlohmann_json::nlohmann_json)
-    find_package(nlohmann_json 3.6.1 QUIET)
+    find_package(nlohmann_json 3.12.0 QUIET)
 
     if(NOT nlohmann_json_FOUND)
         # Compile without testing.

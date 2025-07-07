@@ -12,12 +12,29 @@
 #include <pybind11/pybind11.h>
 
 #include <Eigen/Eigen>
-#include <memory>  // std::unique_ptr
-#include <string>  // std::string, std:;to_string
+#include <Eigen/Cholesky>
+#include <memory>
+#include <string>
 
 namespace py = pybind11;
 using namespace ::pybind11::literals;
 using namespace ::Eigen;
+
+class LdltWrapper {
+  public:
+      LdltWrapper() = default;
+
+      void compute(const MatrixXd& A) {
+          ldlt.compute(A);
+      }
+
+      MatrixXd solve(const MatrixXd& b) const {
+          return ldlt.solve(b);
+      }
+
+  private:
+      LDLT<MatrixXd> ldlt;
+};
 
 template <int Mode>
 void DeclareTransform(pybind11::module& m, const char* class_name) {
@@ -329,9 +346,8 @@ PYBIND11_MODULE(ctrlutils_eigen, m) {
                std::to_string(aa.axis()[2]) + "])>";
       });
 
-  // LDLT<Eigen::MatrixXd>
-  py::class_<LDLT<MatrixXd>>(m, "LdltMatrixXd")
-      .def("solve", [](const LDLT<MatrixXd>& ldlt, Ref<const MatrixXd> x) {
-        return ldlt.solve(x);
-      });
+  py::class_<LdltWrapper>(m, "Ldlt")
+        .def(py::init<>())
+        .def("compute", &LdltWrapper::compute)
+        .def("solve", &LdltWrapper::solve);
 }
