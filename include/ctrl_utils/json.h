@@ -120,8 +120,10 @@ inline void to_json(nlohmann::json& json, const Eigen::Isometry3d& T) {
 }
 
 inline void from_json(const nlohmann::json& json, Eigen::Isometry3d& T) {
-  const Eigen::Vector3d pos = json["pos"].get<Eigen::Vector3d>();
-  const Eigen::Quaterniond ori = json["ori"].get<Eigen::Quaterniond>();
+  std::vector<double> temp_pos = json["pos"].get<std::vector<double>>();
+  Eigen::Vector3d pos(temp_pos[0], temp_pos[1], temp_pos[2]);
+  std::vector<double> temp_ori = json["ori"].get<std::vector<double>>();
+  Eigen::Quaterniond ori(temp_ori[0], temp_ori[1], temp_ori[2], temp_ori[3]);
   T = Eigen::Translation3d(pos) * ori;
 }
 
